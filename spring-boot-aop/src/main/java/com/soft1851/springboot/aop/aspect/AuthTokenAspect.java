@@ -1,6 +1,10 @@
 package com.soft1851.springboot.aop.aspect;
 
 import com.soft1851.springboot.aop.annotation.AuthToken;
+import com.soft1851.springboot.aop.common.Result;
+import com.soft1851.springboot.aop.common.ResultCode;
+import com.soft1851.springboot.aop.mapper.SysUserMapper;
+import com.soft1851.springboot.aop.service.SysUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -10,6 +14,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,6 +29,8 @@ import java.util.Map;
 @Component
 @Slf4j
 public class AuthTokenAspect {
+    @Resource
+    private SysUserMapper mapper;
     /**
      * ThreadLocal可以让我们拥有当前线程的变量，可以通过set()和get()来对每个局部变量进行操作
      * 不会和其他线程的局部变量进行冲突，实现了线程的数据隔离
@@ -110,25 +117,28 @@ public class AuthTokenAspect {
         //没有role的值
         if (roleNames.length <= 1) {
             //只需要认证（登录）
+            String token = request.getHeader("token");
             String id = request.getHeader("id");
-            //如果id是空的，可以调用目标方法
-            if (id != null) {
+            Map<String, Object> map = mapper.getUserById(id);
+            //如果id是空的，证明用户没有登陆
+            if (token != null && roleNames[0].equals(map.get("role_name"))) {
+                // 返回controller方法的值
                 return pjp.proceed();
             }
-            return "请先登录";
-
+            return Result.success(ResultCode.PERMISSION_NO_ACCESS);
         } else {
             //验证身份
-            String role = request.getHeader("role_name");
+            String id = request.getHeader("id");
+            Map<String, Object> map = mapper.getUserById(id);
             //遍历roleNames数组，匹配role
             for (String roleName : roleNames
             ) {
-                if (roleName.equals(role)) {
+                if (roleName.equals(map.get("role_name"))) {
                     //身份匹配成功
                     return pjp.proceed();
                 }
             }
-            return "权限不足，无法访问";
+            return Result.success(ResultCode.PERMISSION_NO_ACCESS);
 
         }
     }

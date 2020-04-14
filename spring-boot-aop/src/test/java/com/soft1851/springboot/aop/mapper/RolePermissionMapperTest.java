@@ -10,15 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @Author yhChen
  * @Description
- * @Date 2020/4/13
+ * @Date 2020/4/14
  */
 @SpringBootTest
-class UserMapperTest {
+class RolePermissionMapperTest {
     @Resource
-    private UserMapper userMapper;
+    private RolePermissionMapper mapper;
 
     @Test
-    void selectAll() {
-        System.out.println(userMapper.selectAll());
+    void getRoleById() {
+        System.out.println(mapper.getRoleById(1));
     }
 }
