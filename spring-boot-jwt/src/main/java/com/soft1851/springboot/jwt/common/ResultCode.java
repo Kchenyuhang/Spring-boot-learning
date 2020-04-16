@@ -1,47 +1,54 @@
-package com.soft1851.springboot.aop.common;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.soft1851.springboot.jwt.common;
 
 /**
- * @Description TODO
  * @Author yhChen
- * @Date 2020/4/13
+ * @Description
+ * @Date 2020/4/15
  */
 public enum ResultCode {
     /* 成功状态码 */
     SUCCESS(1, "成功"),
 
-    /* 参数错误：10001-19999 */
+    /* 通用错误：10001-19999 */
     PARAM_IS_INVALID(10001, "参数无效"),
     PARAM_IS_BLANK(10002, "参数为空"),
     PARAM_TYPE_BIND_ERROR(10003, "参数类型错误"),
     PARAM_NOT_COMPLETE(10004, "参数缺失"),
+    HTTP_METHOD_ERROR(10005, "请求方法错误"),
+    HTTP_METHOD_NOT_ALLOWED(10006, "请求方法不允许"),
+    HTTP_NOT_FOUND(10007, "请求地址错误"),
+    BOUND_STATEMENT_NOT_FOUND(10008, "Mybatis未绑定"),
+    CONNECTION_ERROR(10009, "网络连接错误"),
 
     /* 用户错误：20001-29999*/
-    USER_NOT_LOGIN(20001, "用户未登录"),
+    USER_NOT_SIGN_IN(20001, "请先登录"),
     USER_PASSWORD_ERROR(20002, "密码错误"),
     USER_ACCOUNT_ERROR(20003, "账号错误"),
     USER_VERIFY_CODE_ERROR(20004, "验证码错误"),
-    USER_CODE_TIMEOUT(20005,"验证码失效"),
+    USER_CODE_TIMEOUT(20005, "验证码失效"),
     USER_ACCOUNT_FORBIDDEN(20006, "账号已被禁用"),
     USER_SIGN_UP_FAIL(20007, "用户注册失败"),
     USER_SIGN_IN_FAIL(20008, "用户登录失败"),
-    USER_NOT_ACCESS(20009,"用户没有权限"),
+    USER_NOT_FOUND(20009, "用户不存在"),
+    USER_TOKEN_EXPIRES(20010,"token已失效"),
+    USER_NO_AUTH(20019, "用户权限不足"),
 
 
     /* 业务错误：30001-39999 */
     SMS_ERROR(30001, "短信业务出现问题"),
     UPLOAD_ERROR(30002, "上传文件业务出现问题"),
 
-    /* 系统错误：40001-49999 */
-    SYSTEM_INNER_ERROR(40001, "系统繁忙，请稍后重试"),
-
-    /* 数据错误：50001-599999 */
+    /* 数据错误：40001-49999 */
     RESULT_CODE_DATA_NONE(50001, "数据未找到"),
     DATA_IS_WRONG(50002, "数据有误"),
     DATA_ALREADY_EXISTED(50003, "数据已存在"),
     DATABASE_ERROR(50004, "数据库操作异常"),
+    ARITHMETIC_ERROR(50005,"算数异常"),
+
+
+    /* 服务器或系统错误：50001-599999 */
+    SERVER_ERROR(50000,"服务器错误，请稍后重试"),
+    SYSTEM_ERROR(40001, "系统错误，请稍后重试"),
 
     /* 接口错误：60001-69999 */
     INTERFACE_INNER_INVOKE_ERROR(60001, "内部系统接口调用异常"),
@@ -94,21 +101,4 @@ public enum ResultCode {
         return this.name();
     }
 
-
-    /**
-     * 校验重复的code值
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        ResultCode[] ApiResultCodes = ResultCode.values();
-        List<Integer> codeList = new ArrayList<Integer>();
-        for (ResultCode ApiResultCode : ApiResultCodes) {
-            if (codeList.contains(ApiResultCode.code)) {
-                System.out.println(ApiResultCode.code);
-            } else {
-                codeList.add(ApiResultCode.code());
-            }
-        }
-    }
 }

@@ -1,10 +1,9 @@
 package com.soft1851.springboot.aop.aspect;
 
 import com.soft1851.springboot.aop.annotation.AuthToken;
-import com.soft1851.springboot.aop.common.Result;
+import com.soft1851.springboot.aop.common.ResponseBean;
 import com.soft1851.springboot.aop.common.ResultCode;
 import com.soft1851.springboot.aop.mapper.SysUserMapper;
-import com.soft1851.springboot.aop.service.SysUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -94,7 +93,7 @@ public class AuthTokenAspect {
      * @param ret
      * @throws Throwable
      */
-    @AfterReturning(value = "doAuthToken(authToken)", returning = "ret")
+    @AfterReturning(value = "doAuthToken(authToken)", returning = "ret", argNames = "authToken,ret")
     public void doAfterReturning(AuthToken authToken, Object ret) throws Throwable {
         //从当前线程变量取出数据
         Map<String, Object> threadInfo = threadLocal.get();
@@ -105,41 +104,33 @@ public class AuthTokenAspect {
     }
 
     @Around(value = "doAuthToken(authToken)", argNames = "pjp,authToken")
-    /**
-     * 目标方法的返回类型
-     */
     public Object doAround(ProceedingJoinPoint pjp, AuthToken authToken) throws Throwable {
         ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         assert sra != null;
         HttpServletRequest request = sra.getRequest();
-        //取得注解中的role_name的值
+        // 取得注解中的role_name的值
         String[] roleNames = authToken.role_name();
         //没有role的值
         if (roleNames.length <= 1) {
-            //只需要认证（登录）
+            // 只需认证
             String token = request.getHeader("token");
-            String id = request.getHeader("id");
+            String id = request.getParameter("id");
             Map<String, Object> map = mapper.getUserById(id);
-            //如果id是空的，证明用户没有登陆
+            // 如果id为空， 证明用户没有登录
             if (token != null && roleNames[0].equals(map.get("role_name"))) {
                 // 返回controller方法的值
                 return pjp.proceed();
             }
-            return Result.success(ResultCode.PERMISSION_NO_ACCESS);
-        } else {
-            //验证身份
-            String id = request.getHeader("id");
+            return ResponseBean.failure(ResultCode.USER_NOT_LOGIN);
+        }else {
+            // 请求头中取出role，验证身份
+            String id = request.getParameter("id");
             Map<String, Object> map = mapper.getUserById(id);
-            //遍历roleNames数组，匹配role
-            for (String roleName : roleNames
-            ) {
-                if (roleName.equals(map.get("role_name"))) {
-                    //身份匹配成功
-                    return pjp.proceed();
-                }
+            if ( Arrays.asList(roleNames).contains(map.get("role_name"))){
+                // 身份匹配成功
+                return pjp.proceed();
             }
-            return Result.success(ResultCode.PERMISSION_NO_ACCESS);
-
+            return ResponseBean.failure(ResultCode.USER_NOT_ACCESS);
         }
     }
 }

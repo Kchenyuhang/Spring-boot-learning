@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @Date 2020/4/13
  */
 @Data
-public class Result implements Serializable {
+public class ResponseBean implements Serializable {
 
     private static final long serialVersionUID = -3948389268046368059L;
 
@@ -20,35 +20,35 @@ public class Result implements Serializable {
 
     private Object data;
 
-    private Result() {
+    private ResponseBean() {
     }
 
-    public Result(Integer code, String msg) {
+    public ResponseBean(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
-    public static Result success() {
-        Result result = new Result();
+    public static ResponseBean success() {
+        ResponseBean result = new ResponseBean();
         result.setResultCode(ResultCode.SUCCESS);
         return result;
     }
 
-    public static Result success(Object data) {
-        Result result = new Result();
+    public static ResponseBean success(Object data) {
+        ResponseBean result = new ResponseBean();
         result.setResultCode(ResultCode.SUCCESS);
         result.setData(data);
         return result;
     }
 
-    public static Result failure(ResultCode resultCode) {
-        Result result = new Result();
+    public static ResponseBean failure(ResultCode resultCode) {
+        ResponseBean result = new ResponseBean();
         result.setResultCode(resultCode);
         return result;
     }
 
-    public static Result failure(ResultCode resultCode, Object data) {
-        Result result = new Result();
+    public static ResponseBean failure(ResultCode resultCode, Object data) {
+        ResponseBean result = new ResponseBean();
         result.setResultCode(resultCode);
         result.setData(data);
         return result;
